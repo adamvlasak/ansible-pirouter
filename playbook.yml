@@ -82,13 +82,16 @@
       systemd:
         name: sshd
         state: restarted
+        enabled: yes
 
     - name: dnsmasq
       systemd:
         name: dnsmasq
         state: restarted
+        enabled: yes
 
     - name: iptables
       systemd:
         name: iptables.service
         state: restarted
+        enabled: yes
