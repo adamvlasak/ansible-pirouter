@@ -1,0 +1,16 @@
+---
+vim_plugins:
+  - https://github.com/vim-syntastic/syntastic.git
+  - https://github.com/pearofducks/ansible-vim
+  - https://github.com/leafgarland/typescript-vim
+  - https://github.com/pangloss/vim-javascript
+  - https://github.com/vim-airline/vim-airline
+  - https://github.com/junegunn/fzf
+  - https://github.com/junegunn/fzf.vim
+
+postfix_myhostname: example.org
+
+email: "john@doe.org"
+username: "John Doe"
+login: "jdoe"
+ssh_pubkey: "ssh-rsa AAAXXXfoobar john@doe.org"

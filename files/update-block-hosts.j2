@@ -1,0 +1,4 @@
+#!/bin/bash
+wget -O- /etc/hosts.block https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-porn/hosts | awk '$1 == "0.0.0.0" { print "address=/"$2"/0.0.0.0/"}' > /etc/dnsmasq.d/malware.conf
+wget -O- /etc/hosts.miners https://raw.githubusercontent.com/hoshsadiq/adblock-nocoin-list/master/hosts.txt | awk '$1 == "0.0.0.0" { print "address=/"$2"/0.0.0.0/"}' > /etc/dnsmasq.d/miners.conf
+systemctl restart dnsmasq.service

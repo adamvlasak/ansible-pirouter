@@ -1,0 +1,94 @@
+---
+- name: setup work machine
+  vars_files: vars.yml
+  hosts: all
+  tasks:
+    - name: setup hostname
+      hostname:
+        name: "{{ inventory_hostname }}"
+      tags:
+        - base
+
+    - name: setup correct time
+      file:
+        src: /usr/share/zoneinfo/Europe/Prague
+        dest: /etc/localtime
+        force: yes
+        state: link
+      tags:
+        - base
+
+    - name: configure sshd
+      template:
+        src: sshd_config.j2
+        dest: /etc/ssh/sshd_config
+      notify: sshd
+      tags:
+        - ssh
+    
+    - name: configure /etc/hosts
+      template:
+        src: hosts.j2
+        dest: /etc/hosts
+      tags:
+        - network
+    
+    - name: setup adblock update script
+      copy:
+        src: update-block-hosts.j2
+        dest: /usr/local/sbin/update-block-hosts
+        owner: root
+        group: root
+        mode: 0700
+      tags:
+        - adblock
+
+    - name: configure dnsmasq
+      template:
+        src: dnsmasq.conf.j2
+        dest: /etc/dnsmasq.conf
+      notify: dnsmasq
+      tags:
+        - network
+
+    - name: provision iptables.service
+      template:
+        src: iptables.service.j2
+        dest: /etc/systemd/system/iptables.service
+        owner: root
+        group: root
+        mode: 0400
+      notify: daemon-reload
+      tags:
+        - firewall
+
+    - name: configure iptables
+      template:
+        src: iptables-rules.j2
+        dest: /usr/local/sbin/iptables-rules
+        owner: root
+        group: root
+        mode: 0700
+      notify: iptables
+      tags:
+        - firewall
+
+  handlers:
+    - name: daemon-reload
+      systemd:
+        daemon-reload: yes
+
+    - name: sshd
+      systemd:
+        name: sshd
+        state: restarted
+
+    - name: dnsmasq
+      systemd:
+        name: dnsmasq
+        state: restarted
+
+    - name: iptables
+      systemd:
+        name: iptables.service
+        state: restarted
