@@ -32,6 +32,10 @@ iptables -A INPUT -s 192.168.1.0/24 -d 192.168.1.1/32 -i wlan0 -m conntrack --ct
 iptables -A INPUT -i wlan0 -p udp -m udp -m conntrack --ctstate NEW --dport 67 -j ACCEPT
 iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 iptables -A INPUT -j LOG --log-prefix "INPUT DROP:" --log-level 6
+iptables -A INPUT -s 127.0.0.0/8 ! -i lo -j DROP
+iptables -A INPUT -p tcp --tcp-flags ALL NONE -j DROP
+iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
+iptables -A INPUT -p tcp --tcp-flags ALL ALL -j DROP
 iptables -A INPUT -j DROP
 #
 # Forward
