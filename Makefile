@@ -1,5 +1,7 @@
-test:
-	ansible-playbook playbook.yml --check --diff
+all: build playbook
 
-provision:
-	ansible-playbook playbook.yml --diff
+build:
+	docker build -t ansible-node:latest -f Dockerfile .
+
+playbook:
+	docker run ansible-node ansible-playbook --check --diff /src/playbook.yml
