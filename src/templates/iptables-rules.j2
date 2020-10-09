@@ -65,9 +65,9 @@ iptables -A INPUT -p icmp --icmp-type 0 -m state --state ESTABLISHED,RELATED -j 
 # Allowed input packets
 #
 iptables -A INPUT -i lo -j ACCEPT
-iptables -A INPUT -s 192.168.1.0/24 -d 192.168.1.1/32 -i wlan0 -m conntrack --ctstate NEW -p udp -m udp --dport 53 -j ACCEPT
-iptables -A INPUT -s 192.168.1.0/24 -d 192.168.1.1/32 -i wlan0 -m conntrack --ctstate NEW -p tcp -m tcp --dport 53 -j ACCEPT
-iptables -A INPUT -s 192.168.1.0/24 -d 192.168.1.1/32 -i wlan0 -p tcp -m tcp -m conntrack --ctstate NEW --dport 80 -j ACCEPT
+iptables -A INPUT -i wlan0 -s 192.168.1.0/24 -d 192.168.1.1/32 -m conntrack --ctstate NEW -p udp -m udp --dport 53 -j ACCEPT
+iptables -A INPUT -i wlan0 -s 192.168.1.0/24 -d 192.168.1.1/32 -m conntrack --ctstate NEW -p tcp -m tcp --dport 53 -j ACCEPT
+iptables -A INPUT -i wlan0 -s 192.168.1.0/24 -d 192.168.1.1/32 -p tcp -m tcp -m conntrack --ctstate NEW --dport 80 -j ACCEPT
 iptables -A INPUT -i wlan0 -p udp -m udp -m conntrack --ctstate NEW --sport 68 --dport 67 -j ACCEPT
 iptables -A INPUT -i eth0 -p udp -m udp -m conntrack --ctstate NEW --sport 67 --dport 68 -j ACCEPT
 iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
@@ -79,8 +79,8 @@ iptables -A INPUT -j REJECT --reject-with icmp-proto-unreachable
 #
 # Forward
 #
-iptables -A FORWARD -d 192.168.1.0/24 -i eth0 -o wlan0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-iptables -A FORWARD -s 192.168.1.0/24 -i wlan0 -o eth0 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i eth0 -o wlan0 -d 192.168.1.0/24 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i wlan0 -o eth0 -s 192.168.1.0/24 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
 iptables -A FORWARD -j LOG --log-prefix "FORWARD DROP: "
 iptables -A FORWARD -m tcp -p tcp -j REJECT --reject-with tcp-reset
 iptables -A FORWARD -m udp -p udp -j REJECT --reject-with icmp-port-unreachable
@@ -88,14 +88,14 @@ iptables -A FORWARD -j REJECT --reject-with icmp-proto-unreachable
 #
 # Allowed output packets
 #
-iptables -A OUTPUT -s 127.0.0.1/32 -o lo -j ACCEPT
-iptables -A OUTPUT -s 192.168.1.0/24 -o wlan0 -d 192.168.1.0/24 -j ACCEPT
-iptables -A OUTPUT -s 192.168.0.0/24 -o eth0 -m conntrack --ctstate NEW -m tcp -p tcp --dport 80 -j ACCEPT
-iptables -A OUTPUT -s 192.168.0.0/24 -o eth0 -m conntrack --ctstate NEW -m tcp -p tcp --dport 443 -j ACCEPT
-iptables -A OUTPUT -s 192.168.0.0/24 -o eth0 -m conntrack --ctstate NEW -m udp -p udp --dport 443 -j ACCEPT
-iptables -A OUTPUT -s 192.168.0.0/24 -o eth0 -m conntrack --ctstate NEW -m tcp -p tcp --dport 53 -j ACCEPT
-iptables -A OUTPUT -s 192.168.0.0/24 -o eth0 -m conntrack --ctstate NEW -m udp -p udp --dport 53 -j ACCEPT
-iptables -A OUTPUT -s 192.168.0.0/24 -o eth0 -m conntrack --ctstate NEW -m udp -p udp --dport 123 -j ACCEPT
+iptables -A OUTPUT -o lo -s 127.0.0.1/32 -j ACCEPT
+iptables -A OUTPUT -o wlan0 -s 192.168.1.0/24 -d 192.168.1.0/24 -j ACCEPT
+iptables -A OUTPUT -o eth0 -s 192.168.0.0/24 -m conntrack --ctstate NEW -m tcp -p tcp --dport 80 -j ACCEPT
+iptables -A OUTPUT -o eth0 -s 192.168.0.0/24 -m conntrack --ctstate NEW -m tcp -p tcp --dport 443 -j ACCEPT
+iptables -A OUTPUT -o eth0 -s 192.168.0.0/24 -m conntrack --ctstate NEW -m udp -p udp --dport 443 -j ACCEPT
+iptables -A OUTPUT -o eth0 -s 192.168.0.0/24 -m conntrack --ctstate NEW -m tcp -p tcp --dport 53 -j ACCEPT
+iptables -A OUTPUT -o eth0 -s 192.168.0.0/24 -m conntrack --ctstate NEW -m udp -p udp --dport 53 -j ACCEPT
+iptables -A OUTPUT -o eth0 -s 192.168.0.0/24 -m conntrack --ctstate NEW -m udp -p udp --dport 123 -j ACCEPT
 iptables -A OUTPUT -o eth0 -m conntrack --ctstate NEW -m udp -p udp --sport 68 --dport 67 -j ACCEPT
 iptables -A OUTPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 iptables -A OUTPUT -j LOG --log-prefix "OUTPUT DROP: "
